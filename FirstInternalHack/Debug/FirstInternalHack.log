@@ -1,0 +1,5 @@
+﻿  dllmain.cpp
+C:\work\programing\cheats\projects\triggerBot + aimBot\FirstInternalHack\dllmain.cpp(37,11): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\work\programing\cheats\projects\triggerBot + aimBot\FirstInternalHack\dllmain.cpp(148,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\work\programing\cheats\projects\triggerBot + aimBot\FirstInternalHack\dllmain.cpp(149,15): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  FirstInternalHack.vcxproj -> C:\work\programing\cheats\projects\triggerBot + aimBot\Debug\FirstInternalHack.dll
