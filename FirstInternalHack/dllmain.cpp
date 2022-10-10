@@ -8,10 +8,10 @@
 #include <cmath>
 
 
-typedef Entity* (__cdecl* tGetCrosshairEnt)();
+//typedef Entity* (__cdecl* tGetCrosshairEnt)();
 //typedef Entity* (__cdecl* tIsOnTheGround)(int Entity, float* groundLevel, float* jumpHeight);
 
-tGetCrosshairEnt GetCrosshairEnt = nullptr;
+//tGetCrosshairEnt GetCrosshairEnt = nullptr;
 
 struct EntList
 {
@@ -38,7 +38,9 @@ float toDeg(float rad)
 	return (rad * 180) / pi;
 }
 
+typedef Entity* (__cdecl* tGetCrosshairEnt)();
 
+tGetCrosshairEnt GetCrosshairEnt = nullptr;
 
 DWORD WINAPI HackThread(HMODULE hModule)
 {
@@ -184,36 +186,23 @@ DWORD WINAPI HackThread(HMODULE hModule)
 						{
 							angleYPlayer = -abs((atan(adjY / hyp) * 180 / pi));
 						}
-					}
-					/*
-					if (hypY != 0)
-					{
-						while (true)
-						{
-							if (valArccos >= 0 && valArccos <= 2 * pi)
-							{
-								break;
-							}
-							else
-							{
-								if (valArccos < 0)
-								{
-									valArccos += 2 * pi;
-									neg = -1;
-								}
-								else
-								{
-									valArccos -= 2 * pi;
-									neg = 1;
-								}
-							}
-						}
-						float arccos = acos(valArccos);
-						angleYPlayer = neg * arccos * 180 / pi;
-					}*/
+					}					
 
 					localPlayerPtr->Angles.y = angleYPlayer;
 					
+					Entity* crosshairEnt = GetCrosshairEnt();
+
+					if (crosshairEnt)
+					{
+						if (localPlayerPtr->team != crosshairEnt->team)
+						{
+							localPlayerPtr->bAttack = 1;
+						}
+					}
+					else
+					{
+						localPlayerPtr->bAttack = 0;
+					}
 				}
 			}
 

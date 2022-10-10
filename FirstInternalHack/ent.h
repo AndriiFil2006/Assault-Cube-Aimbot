@@ -17,7 +17,6 @@ public:
 	char pad_004C[172]; //0x004C
 	int32_t Health; //0x00F8
 	char pad_00FC[296]; //0x00FC
-	int8_t isInAir; //0x0069
 	int8_t bAttack; //0x0224
 	char pad_0225[263]; //0x0225
 	int32_t team; //0x032C
