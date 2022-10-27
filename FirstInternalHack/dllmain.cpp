@@ -142,66 +142,99 @@ DWORD WINAPI HackThread(HMODULE hModule)
 			if (bAimBot)
 			{
 				if (entList && IsValidEnt(entList->ents[1]))
-				{
-					//calculating angles for x-axis
-					float opposite = entList->ents[1]->HeadPos.y - localPlayerPtr->HeadPos.y;
-					float adj = entList->ents[1]->HeadPos.x - localPlayerPtr->HeadPos.x;
-
-					float hyp = sqrt(pow((localPlayerPtr->HeadPos.x - entList->ents[1]->HeadPos.x), 2) + pow((localPlayerPtr->HeadPos.y - entList->ents[1]->HeadPos.y), 2));
-					float pi = atan(1) * 4;
-					float angleXPlayer = abs(atan(opposite / adj) * 180 / pi);
-
-					if (opposite > 0 && adj > 0)
-					{	
-						angleXPlayer = angleXPlayer + 90;
-					}
-					else if (opposite > 0 && adj < 0)
-					{
-						angleXPlayer = 270 - angleXPlayer;
-					}
-					else if (opposite < 0 && adj < 0)
-					{
-						angleXPlayer = angleXPlayer - 90;
-					}
-					else
-					{
-						angleXPlayer = 90 - angleXPlayer;
-					}
-
-					localPlayerPtr->Angles.x = angleXPlayer;
-
-
-					//calculating angles for y-axis
-					//float adjY = abs(localPlayerPtr->HeadPos.y - entList->ents[1]->HeadPos.y);
-
-					float adjY = entList->ents[1]->HeadPos.z - localPlayerPtr->HeadPos.z;
+				{	
+					float angleXPlayer = 0;
 					float angleYPlayer = 0;
-					if (adjY != 0)
+					float min_dist = INT_MAX;
+					bool isAccess = false;
+					float fAngleXPlayer = 0;
+					float fAngleYPlayer = 0;
+
+					for (int i = 1; i < *numOfPlayers; i++)
 					{
-						if (adjY > 0)
+						if (entList->ents[i]->team != localPlayerPtr->team)
 						{
-							angleYPlayer = abs(atan(adjY / hyp) * 180 / pi);
+							//calculating angles for x-axis
+							float opposite = entList->ents[i]->HeadPos.y - localPlayerPtr->HeadPos.y;
+							float adj = entList->ents[i]->HeadPos.x - localPlayerPtr->HeadPos.x;
+
+							float hyp = sqrt(pow((localPlayerPtr->HeadPos.x - entList->ents[i]->HeadPos.x), 2) + pow((localPlayerPtr->HeadPos.y - entList->ents[i]->HeadPos.y), 2));
+							float pi = atan(1) * 4;
+							angleXPlayer = abs(atan(opposite / adj) * 180 / pi);
+
+							if (opposite > 0 && adj > 0)
+							{
+								angleXPlayer = angleXPlayer + 90;
+							}
+							else if (opposite > 0 && adj < 0)
+							{
+								angleXPlayer = 270 - angleXPlayer;
+							}
+							else if (opposite < 0 && adj < 0)
+							{
+								angleXPlayer = angleXPlayer - 90;
+							}
+							else
+							{
+								angleXPlayer = 90 - angleXPlayer;
+							}
+
+							//calculating angles for y-axis
+							//float adjY = abs(localPlayerPtr->HeadPos.y - entList->ents[1]->HeadPos.y);
+
+							float adjY = entList->ents[i]->HeadPos.z - localPlayerPtr->HeadPos.z;
+							if (adjY != 0)
+							{
+								if (adjY > 0)
+								{
+									angleYPlayer = abs(atan(adjY / hyp) * 180 / pi);
+								}
+								else
+								{
+									angleYPlayer = -abs((atan(adjY / hyp) * 180 / pi));
+								}
+							}
+
+							if (hyp <= min_dist)
+							{
+								localPlayerPtr->Angles.x = angleXPlayer;
+								localPlayerPtr->Angles.y = angleYPlayer;
+
+								min_dist = hyp;
+
+								Entity* crosshairEnt = GetCrosshairEnt();
+
+								if (crosshairEnt)
+								{
+									if (localPlayerPtr->team != crosshairEnt->team)
+									{
+										isAccess = true;
+										fAngleXPlayer = angleXPlayer;
+										fAngleYPlayer = angleYPlayer;
+									}
+								}
+							}
+						}
+					}
+
+					if (isAccess)
+					{
+						localPlayerPtr->Angles.x = angleXPlayer;
+						localPlayerPtr->Angles.y = angleYPlayer;
+						
+						Entity* crosshairEnt = GetCrosshairEnt();
+
+						if (crosshairEnt)
+						{
+							if (localPlayerPtr->team != crosshairEnt->team)
+							{
+								localPlayerPtr->bAttack = 1;
+							}
 						}
 						else
 						{
-							angleYPlayer = -abs((atan(adjY / hyp) * 180 / pi));
+							localPlayerPtr->bAttack = 0;
 						}
-					}					
-
-					localPlayerPtr->Angles.y = angleYPlayer;
-					
-					Entity* crosshairEnt = GetCrosshairEnt();
-
-					if (crosshairEnt)
-					{
-						if (localPlayerPtr->team != crosshairEnt->team)
-						{
-							localPlayerPtr->bAttack = 1;
-						}
-					}
-					else
-					{
-						localPlayerPtr->bAttack = 0;
 					}
 				}
 			}
