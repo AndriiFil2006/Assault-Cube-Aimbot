@@ -152,7 +152,8 @@ DWORD WINAPI HackThread(HMODULE hModule)
 
 					for (int i = 1; i < *numOfPlayers; i++)
 					{
-						if (entList->ents[i]->team != localPlayerPtr->team)
+						bool bAlive = !(entList->ents[i]->isDead);
+						if (entList->ents[i]->team != localPlayerPtr->team && bAlive)
 						{
 							//calculating angles for x-axis
 							float opposite = entList->ents[i]->HeadPos.y - localPlayerPtr->HeadPos.y;

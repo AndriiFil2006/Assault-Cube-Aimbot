@@ -14,7 +14,10 @@ public:
 	char pad_0010[36]; //0x0010
 	Vector3 BodyPos; //0x0034
 	Vector3 Angles; //0x0040
-	char pad_004C[172]; //0x004C
+	char pad_004C[52]; //0x004C
+	uint16_t uselessSht; //0x0080
+	bool isDead; //0x0082
+	char pad_0083[117]; //0x0083
 	int32_t Health; //0x00F8
 	char pad_00FC[296]; //0x00FC
 	int8_t bAttack; //0x0224
