@@ -38,6 +38,98 @@ float toDeg(float rad)
 	return (rad * 180) / pi;
 }
 
+void writeCheatstoConsole(bool health, bool ammo, bool recoil, bool trigger, bool aimBot)
+{
+	system("CLS");
+
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	std::cout << "[NUM1] Infinite Health: ";
+
+	if (health)
+	{
+		SetConsoleTextAttribute(hConsole, 10);
+
+		std::cout << "ON" << std::endl;
+	}
+	else
+	{
+		SetConsoleTextAttribute(hConsole, 12);
+
+		std::cout << "OFF" << std::endl;
+	}
+
+	SetConsoleTextAttribute(hConsole, 7);
+
+	std::cout << "[NUM2] Infinite Ammo: ";
+
+	if (ammo)
+	{
+		SetConsoleTextAttribute(hConsole, 10);
+
+		std::cout << "ON" << std::endl;
+	}
+	else
+	{
+		SetConsoleTextAttribute(hConsole, 12);
+
+		std::cout << "OFF" << std::endl;
+	}
+
+	SetConsoleTextAttribute(hConsole, 7);
+
+	std::cout << "[NUM3] No Recoil: ";
+
+	if (recoil)
+	{
+		SetConsoleTextAttribute(hConsole, 10);
+
+		std::cout << "ON" << std::endl;
+	}
+	else
+	{
+		SetConsoleTextAttribute(hConsole, 12);
+
+		std::cout << "OFF" << std::endl;
+	}
+
+	SetConsoleTextAttribute(hConsole, 7);
+
+	std::cout << "[NUM4] Trigger Bot: ";
+
+	if (trigger)
+	{
+		SetConsoleTextAttribute(hConsole, 10);
+
+		std::cout << "ON" << std::endl;
+	}
+	else
+	{
+		SetConsoleTextAttribute(hConsole, 12);
+
+		std::cout << "OFF" << std::endl;
+	}
+
+	SetConsoleTextAttribute(hConsole, 7);
+
+	std::cout << "[NUM5] AimBot: ";
+
+	if (aimBot)
+	{
+		SetConsoleTextAttribute(hConsole, 10);
+
+		std::cout << "ON" << std::endl;
+	}
+	else
+	{
+		SetConsoleTextAttribute(hConsole, 12);
+
+		std::cout << "OFF" << std::endl;
+	}
+
+	SetConsoleTextAttribute(hConsole, 7);
+}
+
 typedef Entity* (__cdecl* tGetCrosshairEnt)();
 
 tGetCrosshairEnt GetCrosshairEnt = nullptr;
@@ -53,7 +145,11 @@ DWORD WINAPI HackThread(HMODULE hModule)
 
 	GetCrosshairEnt = (tGetCrosshairEnt)(moduleBase + 0x607c0);
 
+
+
 	bool bHealth = false, bAmmo = false, bRecoil = false, bTriggerBot = false, bAimBot = false;
+
+	writeCheatstoConsole(bHealth, bAmmo, bRecoil, bTriggerBot, bAimBot);
 
 	Entity* localPlayerPtr = { nullptr };
 	//entList* ent_List;
@@ -66,17 +162,23 @@ DWORD WINAPI HackThread(HMODULE hModule)
 		}
 
 		if (GetAsyncKeyState(VK_NUMPAD1) & 1)
+		{
 			bHealth = !bHealth;
+			writeCheatstoConsole(bHealth, bAmmo, bRecoil, bTriggerBot, bAimBot);
+		}
 
 		if (GetAsyncKeyState(VK_NUMPAD2) & 1)
 		{
 			bAmmo = !bAmmo;
+			writeCheatstoConsole(bHealth, bAmmo, bRecoil, bTriggerBot, bAimBot);
 		}
 
 		//no recoil NOP
 		if (GetAsyncKeyState(VK_NUMPAD3) & 1)
 		{
 			bRecoil = !bRecoil;
+
+			writeCheatstoConsole(bHealth, bAmmo, bRecoil, bTriggerBot, bAimBot);
 
 			if (bRecoil)
 			{
@@ -93,15 +195,21 @@ DWORD WINAPI HackThread(HMODULE hModule)
 		if (GetAsyncKeyState(VK_NUMPAD4) & 1)
 		{
 			bTriggerBot = !bTriggerBot;
+
+			writeCheatstoConsole(bHealth, bAmmo, bRecoil, bTriggerBot, bAimBot);
 		}
 
 		if (GetAsyncKeyState(VK_NUMPAD5) & 1)
 		{
 			bAimBot = !bAimBot;
+
+			writeCheatstoConsole(bHealth, bAmmo, bRecoil, bTriggerBot, bAimBot);
 		}
 
 		//need to use uintptr_t for pointer arithmetic later
 		localPlayerPtr = *(Entity**)(moduleBase + 0x10F4F4);
+
+		int* gameMode = (int*)(moduleBase + 0x10F49C);
 
 		int* numOfPlayers = (int*)(0x50f500);
 
@@ -139,6 +247,8 @@ DWORD WINAPI HackThread(HMODULE hModule)
 				localPlayerPtr->currentWeapon->ammoClip->ammo = 420;
 			}
 
+			bool isTeamMode = (*gameMode == 0x5) || (*gameMode == 0x6) || (*gameMode == 0x7) || (*gameMode == 0x14) || (*gameMode == 0x15);
+
 			if (bAimBot)
 			{
 				if (entList && IsValidEnt(entList->ents[1]))
@@ -153,7 +263,25 @@ DWORD WINAPI HackThread(HMODULE hModule)
 					for (int i = 1; i < *numOfPlayers; i++)
 					{
 						bool bAlive = !(entList->ents[i]->isDead);
-						if (entList->ents[i]->team != localPlayerPtr->team && bAlive)
+
+						/*
+						if(i == (*numOfPlayers - 2))
+						{
+							std::cout << "Pisha" << std::endl;
+						}
+						*/
+						
+						bool bAlive1 = !(entList->ents[1]->isDead);
+						bool bAlive2 = !(entList->ents[2]->isDead);
+						bool bAlive3 = !(entList->ents[3]->isDead);
+
+						int plTeam = (int)localPlayerPtr->team;
+
+						int team1 = (int)entList->ents[1]->team;
+						int team2 = (int)entList->ents[2]->team;
+						int team3 = (int)entList->ents[3]->team;
+
+						if (((entList->ents[i]->team != localPlayerPtr->team || !(isTeamMode)) && bAlive))
 						{
 							//calculating angles for x-axis
 							float opposite = entList->ents[i]->HeadPos.y - localPlayerPtr->HeadPos.y;
@@ -207,12 +335,9 @@ DWORD WINAPI HackThread(HMODULE hModule)
 
 								if (crosshairEnt)
 								{
-									if (localPlayerPtr->team != crosshairEnt->team)
-									{
-										isAccess = true;
-										fAngleXPlayer = angleXPlayer;
-										fAngleYPlayer = angleYPlayer;
-									}
+									isAccess = true;
+									fAngleXPlayer = angleXPlayer;
+									fAngleYPlayer = angleYPlayer;
 								}
 							}
 						}
@@ -227,7 +352,7 @@ DWORD WINAPI HackThread(HMODULE hModule)
 
 						if (crosshairEnt)
 						{
-							if (localPlayerPtr->team != crosshairEnt->team)
+							if (localPlayerPtr->team != crosshairEnt->team || !(isTeamMode))
 							{
 								localPlayerPtr->bAttack = 1;
 							}
@@ -246,7 +371,7 @@ DWORD WINAPI HackThread(HMODULE hModule)
 
 				if (crosshairEnt)
 				{
-					if (localPlayerPtr->team != crosshairEnt->team)
+					if (localPlayerPtr->team != crosshairEnt->team || !(isTeamMode))
 					{
 						localPlayerPtr->bAttack = 1;
 					}
@@ -260,6 +385,7 @@ DWORD WINAPI HackThread(HMODULE hModule)
 
 		}
 		Sleep(5);
+		localPlayerPtr->bAttack = 0;
 	}
 
 	fclose(f);
